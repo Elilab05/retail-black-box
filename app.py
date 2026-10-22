@@ -288,6 +288,7 @@ with forecast:
                     st.download_button("Descargar resultados mensuales (CSV)", monthly.to_csv(index=False).encode("utf-8-sig"), file_name="rolling_validation_filtered.csv", mime="text/csv")
             else:
                 st.info("La comparación multimes no está disponible. Ejecuta `retail-black-box rolling` para generar los resultados.")
+            st.markdown("**Detalle por categoría — febrero de 2024 (backtest de un mes)**")
             breakdown = []
             for key, group in preds.groupby("category", observed=True):
                 breakdown.append({"Categoría": key, "Filas": len(group), "WAPE ML": compute_wape(group["actual"], group["predicted_ml"]) * 100, "WAPE baseline": compute_wape(group["actual"], group["predicted_seasonal_naive"]) * 100})

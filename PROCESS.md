@@ -40,7 +40,7 @@ Results produced during initial run:
 - Reconstruction WAPE: 22.76% on 120 sampled complete store-days, seed 42.
 - 7-day-ahead forecast: LightGBM WAPE 17.29% vs seasonal naive WAPE 24.58% on the February 2024 historical evaluation subset.
 
-All numbers should be recalculated after modifying inputs or code. Generated reports under `outputs/` are excluded from public commits by default.
+All numbers should be recalculated after modifying inputs or code. Generated outputs are reproducible, and precomputed files were uploaded for the public Streamlit demo. `.gitignore` only affects newly untracked files; verify tracked artifacts after cloning.
 
 ## 5. AI tooling declaration
 
@@ -55,13 +55,13 @@ Candidate responsibilities before delivery: review data permissions, execute set
 - Potential observability bias: truly missing days may have a different data-generating process from randomly masked days.
 - No verified inventory or actual lost-sales outcome; avoid direct financial impact claims.
 - Empirical p10/p90 lack calibration; conformal calibration would require out-of-time validation.
-- Single historical forecast holdout; assess rolling-origin evaluation and subgroup fairness before any production recommendation.
+- Nine historical monthly expanding-window backtests were run (June 2023–February 2024). Despite winning all nine months against the selected baseline, the model has large errors at seasonal transitions. More years and independent evaluations are needed before a production recommendation.
 - Promotion flags may be unknown ahead of time; deliberately omitted from future-known feature set.
 - Deployment, monitoring service, business-action A/B test and causal attribution are outside the current proof of concept.
 
 ## 7. Reproducibility and data handling
 
-Source CSVs are not modified. CLI has deterministic sampling and fixed modeling seeds. GitHub Actions runs fixture-based tests without access to source CSVs. Raw files are ignored in Git history by default pending redistribution authorization; evaluators with the challenge package can restore them inside `data/`.
+Source CSVs are not modified. CLI has deterministic sampling and fixed modeling seeds. The included GitHub Actions workflow runs fixture-based tests without access to source CSVs when the `.github/workflows/tests.yml` file is present in the public repository. Raw challenge CSVs were later uploaded to the public GitHub repository to support the requested reproducible deliverable, after a candidate decision regarding the challenge instructions. The challenge does not explicitly grant redistribution rights; confirm this with the owner if necessary. `.gitignore` does not hide files already tracked in Git. Evaluators should verify that a fresh clone contains the three data CSVs and precomputed output files, or regenerate outputs as documented.
 
 ## 8. Added historical robustness audit (release 1.2)
 
@@ -70,3 +70,12 @@ Nine separate expanding-window evaluations cover June 2023 through February 2024
 Across 131,484 evaluated rows, WAPE weighted over all absolute actual sales is 24.83% for LightGBM, 32.01% for seasonal naive. All nine months favor the model, but November (36.98% WAPE; about −29.3% signed bias) and January (54.20%; about +52.1% bias) expose severe seasonal regime sensitivity. These negative findings are disclosed in the app and release notes.
 
 This is historical validation, not a guarantee of production accuracy; holiday transitions have only one year of representation. The fold results are reproducible with `retail-black-box rolling` and source CSVs.
+
+
+## 9. Final candidate audit (October 2026)
+
+From an independent output directory, the original data were reprocessed using the version 1.2 code. The incident output files and February forecasting results were byte-for-byte identical to the supplied artifacts. Nine-month rolling predictions were also byte-for-byte identical; the monthly summary had no numerical differences, only CSV formatting differences. Twelve existing unit tests passed.
+
+Two additional unit tests explicitly probe temporal isolation: modifying target-day revenue must not change its preceding as-of model features, and altering target or future-day amounts must not affect a historical-only outage estimate. These are useful regressions, not formal proofs covering all possible forms of leakage.
+
+Only a clarity fix was made to the Streamlit interface: the per-category table after the rolling view now explicitly says it is the **February 2024 fixed-cutoff evaluation**. No ML hyperparameters, scoring logic or training procedure changed in this final audit patch.

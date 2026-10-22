@@ -75,6 +75,19 @@ Output files appear under `outputs/`:
 - `backtest_report.json`, `backtest_rows.csv`
 - `forecast_report.json`, `forecast_predictions.csv`
 
+**Windows (PowerShell, without activating the virtual environment):**
+
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[all]"
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m retail_black_box.cli all --samples 120 --seed 42
+.\.venv\Scripts\python.exe -m retail_black_box.cli rolling --start-month 2023-06 --end-month 2024-02
+.\.venv\Scripts\python.exe -m streamlit run app.py
+```
+
+The nine-month rolling validation is a separate command from `all`; it takes longer because nine models are trained. `outputs/` must contain the generated forecast and rolling prediction files to display all sections. The datasets and outputs uploaded through GitHub's web UI may be tracked even though `.gitignore` excludes **new untracked** CSVs by default; check that the files are present in the repository after cloning. Do not interpret a `.gitignore` rule as proof that an already-committed file is private.
+
 For a lightweight first run without LightGBM: `retail-black-box all --skip-ml`. On macOS, if LightGBM reports an OpenMP library error, install OpenMP using `brew install libomp`, then retry.
 
 ## Experiment validity
@@ -91,7 +104,7 @@ For a lightweight first run without LightGBM: `retail-black-box all --skip-ml`. 
 
 See [`PROCESS.md`](PROCESS.md) for methodology, AI assistance disclosure and workflow and [`docs/DECISIONS.md`](docs/DECISIONS.md) for interpretation, risk and follow-up work.
 
-The repository includes the three **original** dataset CSV files supplied with the technical exercise to fulfill the requirement for a **public, complete, reproducible solution**. The original instructions did not explicitly grant redistribution rights or prohibit sharing the supplied files; this publication is a candidate judgment, **not** a claim of an express license. Source data is aggregated at store/category/day level and no direct personal identifiers appear in the supplied schema. Remove the data or request written authorization if the challenge owner states a restriction. Automated tests use synthetic fixtures.
+The published version used for the Streamlit demonstration includes the three **original** dataset CSV files supplied with the technical exercise to fulfill the requirement for a **public, complete, reproducible solution**. The original instructions did not explicitly grant redistribution rights or prohibit sharing the supplied files; this publication is a candidate judgment, **not** a claim of an express license. Source data is aggregated at store/category/day level and no direct personal identifiers appear in the supplied schema. Remove the data or request written authorization if the challenge owner states a restriction. Automated tests use synthetic fixtures.
 
 ## Repository outline
 
@@ -105,6 +118,7 @@ retail-black-box/
 │   ├── incidents.py             # Past-only outage estimates
 │   ├── experiments.py           # Masked-day backtest
 │   ├── forecast.py              # Direct 7-day-ahead ML vs baseline
+│   ├── rolling_validation.py    # Expanding-window monthly audits
 │   └── cli.py                   # Reproducible entry point
 ├── tests/                       # Synthetic unit tests
 ├── docs/                        # Source dictionary and choices
@@ -136,3 +150,11 @@ gh auth login                  # Only if not logged into GitHub CLI
 The `gh repo create` line is intentionally commented: publishing a public repository is an explicit action requiring your GitHub account and review. The original challenge deadline is **48 hours from receipt**, not from repository creation.
 
 Alternatively, when `gh` is installed and authenticated, run `bash scripts/publish_github.sh` to confirm explicit public publication. Confirm the data rights and repository name before proceeding.
+
+
+## Submission-quality notes (final review)
+
+- February category metrics displayed below the monthly robustness section **refer only to February 2024**, not the aggregate of all nine months.
+- Twelve original automated tests and two additional temporal guardrail tests are available after applying the audit patch.
+- The masked-day reconstruction check measures **estimation error**, not incident detection precision/recall. Incident root causes and verified revenue losses are unknown.
+- The complete project was checked by recreating derived reports from the supplied CSVs. This does not replace an external clean-environment check from a fresh GitHub clone.
