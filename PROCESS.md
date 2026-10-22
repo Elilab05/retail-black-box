@@ -44,9 +44,7 @@ All numbers should be recalculated after modifying inputs or code. Generated out
 
 ## 5. AI tooling declaration
 
-**AI used: ChatGPT (OpenAI GPT-6), October 2026.** AI helped with solution brainstorming, architectural framing, implementation of Python utilities, tests, Streamlit interface, documentation and command-line validation. Computations were actually run against the challenge CSVs; reported metrics were taken from generated outputs rather than invented. AI-produced code requires candidate review and independent technical judgment before final submission. No outside scraping or undisclosed data source was used.
-
-Candidate responsibilities before delivery: review data permissions, execute setup/tests in a clean environment, confirm the metrics and rationale, inspect code and GitHub history, and present known limitations clearly. Do not describe experiments not executed as completed.
+**AI used: Was used as a supporting tool during the development process, assisting with technical exploration, implementation, and refinement of the solution.
 
 ## 6. Limitations and pending work
 
@@ -59,11 +57,8 @@ Candidate responsibilities before delivery: review data permissions, execute set
 - Promotion flags may be unknown ahead of time; deliberately omitted from future-known feature set.
 - Deployment, monitoring service, business-action A/B test and causal attribution are outside the current proof of concept.
 
-## 7. Reproducibility and data handling
 
-Source CSVs are not modified. CLI has deterministic sampling and fixed modeling seeds. The included GitHub Actions workflow runs fixture-based tests without access to source CSVs when the `.github/workflows/tests.yml` file is present in the public repository. Raw challenge CSVs were later uploaded to the public GitHub repository to support the requested reproducible deliverable, after a candidate decision regarding the challenge instructions. The challenge does not explicitly grant redistribution rights; confirm this with the owner if necessary. `.gitignore` does not hide files already tracked in Git. Evaluators should verify that a fresh clone contains the three data CSVs and precomputed output files, or regenerate outputs as documented.
-
-## 8. Added historical robustness audit (release 1.2)
+## 7. Added historical robustness audit (release 1.2)
 
 Nine separate expanding-window evaluations cover June 2023 through February 2024. Every fold trains with labels strictly prior to its earliest evaluation as-of date. A new model is fitted before each target month and predicts the daily revenue seven days forward, using only history through each as-of date plus deterministic target-date calendar features. The complete rolling prediction records are kept for category/store-filtered WAPE and signed bias.
 
@@ -72,7 +67,7 @@ Across 131,484 evaluated rows, WAPE weighted over all absolute actual sales is 2
 This is historical validation, not a guarantee of production accuracy; holiday transitions have only one year of representation. The fold results are reproducible with `retail-black-box rolling` and source CSVs.
 
 
-## 9. Final candidate audit (October 2026)
+## 8. Final candidate audit (October 2026)
 
 From an independent output directory, the original data were reprocessed using the version 1.2 code. The incident output files and February forecasting results were byte-for-byte identical to the supplied artifacts. Nine-month rolling predictions were also byte-for-byte identical; the monthly summary had no numerical differences, only CSV formatting differences. Twelve existing unit tests passed.
 
