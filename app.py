@@ -72,7 +72,7 @@ def get_rolling_predictions():
 
 st.markdown('<div class="rbb-eyebrow">Retail Operations • Decision Intelligence</div>', unsafe_allow_html=True)
 st.title("Retail Black Box")
-st.caption("Detectar → investigar → priorizar. Diagnósticos verificables sobre datos reales de la prueba técnica.")
+st.caption("Inteligencia operativa para detectar anomalías, pronosticar la demanda y transformar datos en decisiones estratégicas.")
 st.markdown('<div class="rbb-divider"></div>', unsafe_allow_html=True)
 
 try:
