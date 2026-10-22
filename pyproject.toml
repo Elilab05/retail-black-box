@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retail-black-box"
+version = "0.1.0"
+description = "Evidence-driven retail incident intelligence"
+requires-python = ">=3.10"
+dependencies = ["pandas>=2.0,<3", "numpy>=1.24,<3"]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.35", "plotly>=5.20"]
+ml = ["lightgbm>=4.0", "scikit-learn>=1.3"]
+dev = ["pytest>=7", "ruff>=0.4"]
+all = ["streamlit>=1.35", "plotly>=5.20", "lightgbm>=4.0", "scikit-learn>=1.3", "pytest>=7", "ruff>=0.4"]
+
+[project.scripts]
+retail-black-box = "retail_black_box.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

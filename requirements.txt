@@ -1,0 +1,2 @@
+# Alternative install for evaluation environments (Python >=3.10)
+-e .[all]
