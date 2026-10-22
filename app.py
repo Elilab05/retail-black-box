@@ -62,6 +62,14 @@ def get_forecast():
     return pd.read_csv(fp, parse_dates=["date_target", "date_asof"]), json.loads(rp.read_text(encoding="utf-8"))
 
 
+@st.cache_data(show_spinner="Cargando validación multimes...")
+def get_rolling_predictions():
+    fp = ROOT / "outputs" / "rolling_predictions.csv"
+    if not fp.exists():
+        return None
+    return pd.read_csv(fp)
+
+
 st.markdown('<div class="rbb-eyebrow">Retail Operations • Decision Intelligence</div>', unsafe_allow_html=True)
 st.title("Retail Black Box")
 st.caption("Detectar → investigar → priorizar. Diagnósticos verificables sobre datos reales de la prueba técnica.")
@@ -238,14 +246,54 @@ with forecast:
             lab = {"actual":"Observado", "predicted_ml":"LightGBM", "predicted_seasonal_naive":"Seasonal naive"}
             day["Serie"] = day["Serie"].map(lab)
             figure = px.line(day, x="date_target", y="MXN", color="Serie", labels={"date_target":"Día objetivo"}, title="Ventas históricas observadas vs pronósticos (mismo periodo)")
-            figure.update_layout(height=370, margin=dict(l=10,r=10,t=55,b=10), legend_orientation="h")
+            figure.update_layout(height=410, margin=dict(l=10,r=10,t=55,b=75), legend=dict(orientation="h", y=-0.27, x=0), legend_title_text="", xaxis_title="Fecha objetivo")
             st.plotly_chart(figure, use_container_width=True)
+            # Expanding-window validation: filtered independently of February holdout.
+            monthly_fp = ROOT / "outputs" / "rolling_predictions.csv"
+            if monthly_fp.exists():
+                st.subheader("Robustez temporal · nueve cortes mensuales")
+                st.caption("Cada mes se evalúa con un modelo reentrenado con etiquetas disponibles antes del primer día de pronóstico. Pronósticos de siete días; periodos de junio 2023 a febrero 2024.")
+                rolling_data = get_rolling_predictions()
+                rolling_data = rolling_data[rolling_data["store_id"].isin(store_ids)]
+                if category != "Todas":
+                    rolling_data = rolling_data[rolling_data["category"] == category]
+                if not rolling_data.empty:
+                    monthly = []
+                    for month, g in rolling_data.groupby("period", sort=True):
+                        wr_ml = compute_wape(g["actual"], g["predicted_ml"])
+                        wr_baseline = compute_wape(g["actual"], g["predicted_seasonal_naive"])
+                        bias = (g["predicted_ml"] - g["actual"]).sum() / g["actual"].sum() if g["actual"].sum() else float("nan")
+                        monthly.append({"Mes": str(month), "LightGBM (%)": wr_ml * 100, "Baseline (%)": wr_baseline * 100, "Sesgo ML (%)": bias * 100, "Filas": len(g)})
+                    monthly = pd.DataFrame(monthly)
+                    w_all_ml = compute_wape(rolling_data["actual"], rolling_data["predicted_ml"])
+                    w_all_base = compute_wape(rolling_data["actual"], rolling_data["predicted_seasonal_naive"])
+                    worst = monthly.loc[monthly["LightGBM (%)"].idxmax()]
+                    rc1, rc2, rc3 = st.columns(3)
+                    rc1.metric("WAPE ML · nueve meses", pct(w_all_ml))
+                    rc2.metric("WAPE baseline · nueve meses", pct(w_all_base))
+                    rc3.metric("Peor mes ML", f"{worst['Mes']} · {worst['LightGBM (%)']:.1f}%")
+                    monthly_long = monthly.melt(id_vars="Mes", value_vars=["LightGBM (%)", "Baseline (%)"], var_name="Modelo", value_name="WAPE (%)")
+                    chart_monthly = px.bar(monthly_long, x="Mes", y="WAPE (%)", color="Modelo", barmode="group", title="Rendimiento en distintos escenarios estacionales")
+                    chart_monthly.update_layout(height=350, margin=dict(l=10,r=10,t=50,b=10), legend_orientation="h")
+                    st.plotly_chart(chart_monthly, use_container_width=True)
+                    st.dataframe(monthly, hide_index=True, use_container_width=True, column_config={
+                        "LightGBM (%)": st.column_config.NumberColumn("WAPE ML", format="%.2f %%"),
+                        "Baseline (%)": st.column_config.NumberColumn("WAPE baseline", format="%.2f %%"),
+                        "Sesgo ML (%)": st.column_config.NumberColumn("Sesgo firmado", format="%+.2f %%"),
+                    })
+                    risky = monthly[(monthly["LightGBM (%)"] > 30) | (monthly["Sesgo ML (%)"].abs() > 20)]
+                    if not risky.empty:
+                        st.warning("Riesgo de régimen estacional: algunos meses superan 30% de WAPE o 20% de sesgo. Revisar antes de utilizar el modelo para decisiones operativas.")
+                    st.caption("Métricas calculadas desde pronósticos individuales; filtros de región, tienda y categoría aplicados. El WAPE de nueve meses se pondera por el volumen real, no por el promedio de porcentajes mensuales. No equivale a rendimiento futuro garantizado.")
+                    st.download_button("Descargar resultados mensuales (CSV)", monthly.to_csv(index=False).encode("utf-8-sig"), file_name="rolling_validation_filtered.csv", mime="text/csv")
+            else:
+                st.info("La comparación multimes no está disponible. Ejecuta `retail-black-box rolling` para generar los resultados.")
             breakdown = []
             for key, group in preds.groupby("category", observed=True):
-                breakdown.append({"Categoría": key, "Filas": len(group), "WAPE ML": compute_wape(group["actual"], group["predicted_ml"]), "WAPE baseline": compute_wape(group["actual"], group["predicted_seasonal_naive"])})
+                breakdown.append({"Categoría": key, "Filas": len(group), "WAPE ML": compute_wape(group["actual"], group["predicted_ml"]) * 100, "WAPE baseline": compute_wape(group["actual"], group["predicted_seasonal_naive"]) * 100})
             breakdown = pd.DataFrame(breakdown).sort_values("WAPE ML")
-            st.dataframe(breakdown, hide_index=True, use_container_width=True, column_config={"WAPE ML": st.column_config.NumberColumn(format="%.2f"), "WAPE baseline": st.column_config.NumberColumn(format="%.2f")})
-            st.caption("Los WAPE de la tabla se expresan como proporciones (0.17 = 17%). Aún se necesita evaluación con múltiples cortes temporales para robustez estacional.")
+            st.dataframe(breakdown, hide_index=True, use_container_width=True, column_config={"WAPE ML": st.column_config.NumberColumn(format="%.2f %%"), "WAPE baseline": st.column_config.NumberColumn(format="%.2f %%")})
+            st.caption("WAPE expresado como porcentaje. La validación mensual anterior permite estudiar el desempeño estacional; existen periodos de error elevado.")
             st.download_button("Exportar predicciones filtradas (CSV)", preds.to_csv(index=False).encode("utf-8-sig"), file_name="retail_forecast_scoped.csv", mime="text/csv")
             with st.expander("Protocolo de evaluación y limitaciones"):
                 st.json(report)

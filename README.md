@@ -114,6 +114,13 @@ retail-black-box/
 └── outputs/                     # Reproducible reports and predictions
 ```
 
+
+## Version 1.2 — Seasonal robustness (nine backtests)
+
+An expanding-window backtest was conducted for every month from June 2023 through February 2024, updating the model before each month and forecasting seven days ahead. Over all **131,484** evaluated store/category/day predictions, LightGBM achieved **24.83% WAPE** versus **32.01%** for the seasonal-naive baseline (weighted over all actual values). It outperformed the baseline in all nine months, but had substantial forecast errors and signed bias during November and January, a limitation now surfaced in the dashboard.
+
+To regenerate the complete monthly evidence, run `retail-black-box rolling --start-month 2023-06 --end-month 2024-02` and then restart Streamlit. See [`docs/RELEASE_NOTES_1_2.md`](docs/RELEASE_NOTES_1_2.md).
+
 ## Public GitHub publication
 
 For publishing subsequent revisions after confirming the treatment of source CSVs:

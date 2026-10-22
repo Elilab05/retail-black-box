@@ -18,12 +18,14 @@ def save_json(path: Path, value: dict) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Retail Black Box - audits and historical experiments")
-    p.add_argument("command", choices=["quality", "incidents", "backtest", "forecast", "all"])
+    p.add_argument("command", choices=["quality", "incidents", "backtest", "forecast", "rolling", "all"])
     p.add_argument("--data-dir", default="data")
     p.add_argument("--out-dir", default="outputs")
     p.add_argument("--samples", type=int, default=120, help="Masked complete store-days")
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--skip-ml", action="store_true", help="Only relevant to 'all'")
+    p.add_argument("--start-month", default="2023-06", help="First month for rolling validation")
+    p.add_argument("--end-month", default="2024-02", help="Last month for rolling validation")
     args = p.parse_args()
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -42,6 +44,15 @@ def main() -> None:
         save_json(out / "backtest_report.json", report)
         rows.to_csv(out / "backtest_rows.csv", index=False)
         print(f"Masked outage WAPE: {report['wape']:.2%}")
+    if args.command == "rolling":
+        from .rolling_validation import run_rolling_backtests
+        summary, predictions = run_rolling_backtests(t, s, c, args.start_month, args.end_month)
+        summary.to_csv(out / "rolling_validation.csv", index=False)
+        predictions.to_csv(out / "rolling_predictions.csv", index=False)
+        total_actual = summary["sum_abs_actual"].sum()
+        ml = summary["sum_abs_error_ml"].sum() / total_actual
+        base = summary["sum_abs_error_baseline"].sum() / total_actual
+        print(f"Rolling WAPE: ML {ml:.2%}, baseline {base:.2%}; {len(summary)} month(s) saved")
     if args.command == "forecast" or (args.command == "all" and not args.skip_ml):
         from .forecast import evaluate_7d
         report, rows = evaluate_7d(t, s, c)
@@ -52,3 +63,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

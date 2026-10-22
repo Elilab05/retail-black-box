@@ -62,3 +62,11 @@ Candidate responsibilities before delivery: review data permissions, execute set
 ## 7. Reproducibility and data handling
 
 Source CSVs are not modified. CLI has deterministic sampling and fixed modeling seeds. GitHub Actions runs fixture-based tests without access to source CSVs. Raw files are ignored in Git history by default pending redistribution authorization; evaluators with the challenge package can restore them inside `data/`.
+
+## 8. Added historical robustness audit (release 1.2)
+
+Nine separate expanding-window evaluations cover June 2023 through February 2024. Every fold trains with labels strictly prior to its earliest evaluation as-of date. A new model is fitted before each target month and predicts the daily revenue seven days forward, using only history through each as-of date plus deterministic target-date calendar features. The complete rolling prediction records are kept for category/store-filtered WAPE and signed bias.
+
+Across 131,484 evaluated rows, WAPE weighted over all absolute actual sales is 24.83% for LightGBM, 32.01% for seasonal naive. All nine months favor the model, but November (36.98% WAPE; about −29.3% signed bias) and January (54.20%; about +52.1% bias) expose severe seasonal regime sensitivity. These negative findings are disclosed in the app and release notes.
+
+This is historical validation, not a guarantee of production accuracy; holiday transitions have only one year of representation. The fold results are reproducible with `retail-black-box rolling` and source CSVs.
