@@ -1,5 +1,8 @@
 # Retail Black Box
 
+**Live dashboard:** https://retail-black-box.streamlit.app/  
+**Source:** https://github.com/Elilab05/retail-black-box
+
 **Detect · Diagnose · Prioritize** — retail decision intelligence built on verifiable operational evidence.
 
 > **Technical exercise:** multi-region Mexican retailer. The objective is not simply to predict demand, but to avoid treating missing sales records as true zero-revenue days and to quantify the reliability of a proposed diagnostic workflow.
@@ -10,7 +13,7 @@
 2. **Incident Explorer:** detects full store-days with absent records across every category. Estimates the **sales volume one might have expected to observe**, without alleging business revenue loss.
 3. **Replay & Stress Test:** hides an *observed* store-day and reconstructs it using only earlier dates. Measures error on known holdout values.
 4. **Forecast Audit:** compares a seven-day-ahead global LightGBM revenue predictor against the same-weekday seasonal naive baseline using a leakage-aware historical split. Does **not** automatically invent future promotions.
-5. **Dashboard:** interactive Streamlit + Plotly application with store, region and category filters; historical forecast curves; one-day experiment and diagnostics.
+5. **Dashboard:** interactive Streamlit + Plotly application with store, region and category filters; scoped headline KPIs and WAPE; historical forecasts; one-day replay; incident triage with historical evidence.
 
 ## Results reproduced on the supplied dataset
 
@@ -29,6 +32,15 @@
 | Forecast seasonal naive: identical evaluation subset | **24.58%** |
 
 **Interpretation:** estimated unobserved volume is not confirmed lost revenue. Forecast improvement (~29.7% relative WAPE reduction) is a historical single-month result, not a production SLA. Short historical quantiles `p10/p90` are not calibrated prediction intervals. Compare experiments with source outputs under `outputs/`.
+
+## Version 1.1 improvements
+
+- Global KPIs replaced with filters-consistent observed volume, records, data integrity and expected volume proxy.
+- Case-by-case incident investigation with temporal evidence, historical support and suggested verification steps.
+- Forecast WAPE and relative improvement recalculated for selected store/region/category.
+- Historical masking replay, transparent uncertainty caveats and scoped CSV exports.
+
+See [`docs/RELEASE_NOTES_1_1.md`](docs/RELEASE_NOTES_1_1.md).
 
 ## Run locally
 
@@ -85,8 +97,9 @@ The repository includes the three **original** dataset CSV files supplied with t
 
 ```text
 retail-black-box/
-├── app.py                       # Streamlit dashboard
+├── app.py                       # Streamlit decision dashboard
 ├── src/retail_black_box/
+│   ├── dashboard_metrics.py     # Filter-aware KPI / WAPE computations
 │   ├── data.py                  # Strict ingest, full store-day coverage
 │   ├── quality.py               # Auditable financial/data integrity
 │   ├── incidents.py             # Past-only outage estimates
