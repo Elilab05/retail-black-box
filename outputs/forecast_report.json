@@ -1,0 +1,53 @@
+{
+  "task": "7_day_ahead_daily_store_category_revenue_forecast",
+  "horizon_days": 7,
+  "training_labels_available_through": "2024-01-24",
+  "first_evaluation_asof_date": "2024-01-25",
+  "evaluation_target_start": "2024-02-01",
+  "evaluation_target_end": "2024-02-29",
+  "n_train": 183312,
+  "n_test": 13884,
+  "wape_ml": 0.17291683414206782,
+  "wape_seasonal_naive": 0.24575340618247418,
+  "relative_wape_improvement": 0.2963807223340153,
+  "model_wins": true,
+  "per_category": {
+    "Abarrotes": {
+      "wape_ml": 0.17503793705774048,
+      "wape_seasonal_naive": 0.24987737665359386,
+      "rows": 2314
+    },
+    "Bebidas": {
+      "wape_ml": 0.17274828057243405,
+      "wape_seasonal_naive": 0.24166410224626825,
+      "rows": 2314
+    },
+    "Cuidado_Personal": {
+      "wape_ml": 0.17710245276614783,
+      "wape_seasonal_naive": 0.248821189116021,
+      "rows": 2314
+    },
+    "Electronica": {
+      "wape_ml": 0.16809596806643057,
+      "wape_seasonal_naive": 0.24067917912648418,
+      "rows": 2314
+    },
+    "Hogar": {
+      "wape_ml": 0.17432236410886884,
+      "wape_seasonal_naive": 0.249913991754098,
+      "rows": 2314
+    },
+    "Ropa": {
+      "wape_ml": 0.17102928753330088,
+      "wape_seasonal_naive": 0.24207057012070363,
+      "rows": 2314
+    }
+  },
+  "caveats": [
+    "This is a fixed-cutoff historical backtest, not a future prediction.",
+    "Features use as-of history and known future calendar flags, never future realized sales.",
+    "Seasonal baseline uses observed sales exactly seven days before target.",
+    "Target dates with missing actuals and as-of dates with missing sales are excluded.",
+    "A single February holdout is not evidence of robust performance across seasons."
+  ]
+}

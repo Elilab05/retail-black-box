@@ -1,0 +1,8 @@
+date,store_id,store_format,region,estimate_mxn,p10_mxn,p90_mxn,categories_estimated,status,diagnosis
+2023-02-01,STR_045,Bodega,Centro,556073.665,457061.127,650915.869,6,DATA_COVERAGE_GAP,All expected product categories missing; investigate POS/ingestion before inferring sales impact.
+2023-02-02,STR_045,Bodega,Centro,615857.74,525013.838,734388.462,6,DATA_COVERAGE_GAP,All expected product categories missing; investigate POS/ingestion before inferring sales impact.
+2024-02-18,STR_055,Bodega,Norte,926236.7749999999,781809.4550000001,1050658.085,6,DATA_COVERAGE_GAP,All expected product categories missing; investigate POS/ingestion before inferring sales impact.
+2024-02-19,STR_055,Bodega,Norte,514939.53,384973.40499999997,683007.43,6,DATA_COVERAGE_GAP,All expected product categories missing; investigate POS/ingestion before inferring sales impact.
+2024-02-20,STR_055,Bodega,Norte,532470.9249999999,473977.31999999995,656053.035,6,DATA_COVERAGE_GAP,All expected product categories missing; investigate POS/ingestion before inferring sales impact.
+2023-02-22,STR_064,Express,Sur,280772.925,220953.06000000003,351040.29500000004,6,DATA_COVERAGE_GAP,All expected product categories missing; investigate POS/ingestion before inferring sales impact.
+2023-02-23,STR_064,Express,Sur,288709.955,236406.88,332600.18000000005,6,DATA_COVERAGE_GAP,All expected product categories missing; investigate POS/ingestion before inferring sales impact.

@@ -40,7 +40,7 @@ source .venv/bin/activate  # Windows PowerShell: .venv\\Scripts\\Activate.ps1
 python -m pip install -e '.[all]'
 ```
 
-Copy **the three original challenge files** into `data/`:
+The three original challenge files are included in `data/`:
 
 ```
 data/transactions.csv
@@ -79,7 +79,7 @@ For a lightweight first run without LightGBM: `retail-black-box all --skip-ml`. 
 
 See [`PROCESS.md`](PROCESS.md) for methodology, AI assistance disclosure and workflow and [`docs/DECISIONS.md`](docs/DECISIONS.md) for interpretation, risk and follow-up work.
 
-This repository **does not publish the provided CSV datasets by default**: `.gitignore` excludes `data/*.csv`, because redistribution rights were not specified. The handoff archive includes the files for local execution. If publishing the raw dataset is explicitly authorized by the challenge owner, remove the ignore rule and document the authorization. Tests use synthetic fixtures, so CI runs without source data.
+The repository includes the three **original** dataset CSV files supplied with the technical exercise to fulfill the requirement for a **public, complete, reproducible solution**. The original instructions did not explicitly grant redistribution rights or prohibit sharing the supplied files; this publication is a candidate judgment, **not** a claim of an express license. Source data is aggregated at store/category/day level and no direct personal identifiers appear in the supplied schema. Remove the data or request written authorization if the challenge owner states a restriction. Automated tests use synthetic fixtures.
 
 ## Repository outline
 
@@ -97,12 +97,13 @@ retail-black-box/
 ├── docs/                        # Source dictionary and choices
 ├── .github/workflows/tests.yml # Dataset-free CI
 ├── PROCESS.md                   # Mandatory methodology / AI disclosure
-└── data/                        # Supplied CSVs (not committed by default)
+├── data/                        # Original challenge CSVs (included)
+└── outputs/                     # Reproducible reports and predictions
 ```
 
 ## Public GitHub publication
 
-After checking the code and approving whether source CSVs may be shared:
+For publishing subsequent revisions after confirming the treatment of source CSVs:
 
 ```bash
 git init -b main

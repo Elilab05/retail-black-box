@@ -1,0 +1,25 @@
+{
+  "transactions_rows": 203958,
+  "stores": 80,
+  "categories": 6,
+  "calendar_days": 425,
+  "expected_store_category_days": 204000,
+  "absent_store_category_days": 42,
+  "missing_whole_store_days": 7,
+  "partial_store_days": 0,
+  "duplicate_transaction_keys": 0,
+  "mismatched_transaction_count": 38295,
+  "mismatched_avg_ticket_gt_1_mxn": 39786,
+  "mismatched_payment_amount_gt_1_mxn": 0,
+  "null_cash_transaction_count": 12123,
+  "null_cash_amount_count": 12123,
+  "null_avg_ticket_count": 4874,
+  "null_replenishment_signal_count": 960,
+  "date_start": "2023-01-01",
+  "date_end": "2024-02-29",
+  "caveats": [
+    "A missing store-day is not evidence of zero actual sales.",
+    "Amount-payment reconciliation can pass even when count reconciliation fails.",
+    "No causal or revenue-loss claim is justified by these checks alone."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "experiment": "historical_complete_store_days_masked_as_missing",
+  "seed": 42,
+  "requested_store_days": 120,
+  "sampled_store_days": 120,
+  "category_rows": 720,
+  "evaluable_rows": 720,
+  "wape": 0.22761788516509535,
+  "mae_mxn": 36462.65942361111,
+  "empirical_p10_p90_coverage": 0.5972222222222222,
+  "warning": "Empirical p10/p90 from 2-6 samples are NOT calibrated prediction intervals; this is a feasibility experiment."
+}

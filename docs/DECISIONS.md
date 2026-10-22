@@ -29,4 +29,4 @@ The counts of cash/card transactions can disagree with total transactions while 
 
 ## Security and publishing
 
-No PII appears in the supplied schema. That does **not** imply free redistribution rights: keep the challenge CSVs private by default. GitHub CI uses synthetic fixture data.
+No personal identifiers appear in the supplied aggregate schema. The public deliverable requests a complete, reproducible solution, so this submission includes the three original CSVs; that is a judgment about the exercise, not proof of redistribution rights. Remove on challenge-owner request. GitHub CI uses synthetic fixture data.
